@@ -71,6 +71,11 @@ class User(db.Model):
         secondaryjoin = (Friends.friend_id == id)
         )
 
+    def accept_friend(self, friend_id):
+
+        friend = User.query.get(friend_id)
+        self.friends.append(friend)
+        db.session.commit()
 
     @classmethod
     def signup(cls, username, email, password):
@@ -130,7 +135,8 @@ class Cabinet(db.Model):
     ### MAKE INGREDIENTS RELATIONSHIP
     ingredients = db.relationship(
         'Ingredient',
-        secondary='cabinet_ingredients')
+        secondary='cabinet_ingredients',
+        backref = 'cabinets')
 
 class CabinetIngredient(db.Model):
     """Many to Many table for Ingredients and Cabinets"""

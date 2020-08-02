@@ -297,3 +297,71 @@ class IngredientModelTestCase (TestCase):
         db.session.commit()
 
         self.assertEqual(ing.cabinets[0], self.cab)
+
+
+class RecipeModelTestCase (TestCase):
+    """Tests the Recipe model"""
+
+    def setUp(self):
+        """create test client, and add sample data"""
+        
+        User.query.delete()
+        Cabinet.query.delete()
+        Recipe.query.delete()
+        Friends.query.delete()
+        Favorites.query.delete()
+        Comment.query.delete()
+        Post.query.delete()
+        Ingredient.query.delete()
+        db.session.commit()
+
+        self.client = app.test_client() 
+
+    def test_recipe(self):
+        """recipe Model initialization"""
+
+        rec = Recipe(name = 'Recipe')
+        db.session.add(rec)
+        db.session.commit()
+
+        self.assertTrue(rec.id > 0)
+
+class FavoritesModelTestCase (TestCase):
+    """Tests the Favorites model"""
+
+    def setUp(self):
+        """create test client, and add sample data"""
+        
+        User.query.delete()
+        Cabinet.query.delete()
+        Recipe.query.delete()
+        Friends.query.delete()
+        Favorites.query.delete()
+        Comment.query.delete()
+        Post.query.delete()
+        Ingredient.query.delete()
+        db.session.commit()
+
+        self.client = app.test_client() 
+
+        self.u = User.signup(
+            username='testuser',
+            email='test@test.com',
+            password= 'testtest',
+            
+        )
+        db.session.add(self.u)
+        db.session.commit()
+
+        self.rec = Recipe(name = 'Recipe')
+        db.session.add(self.rec)
+        db.session.commit()
+
+    def test_favorites_model(self):
+        """Tests favorites model and the relationship between User and Recipes"""
+
+        fav = Favorites(user_id = self.u.id, recipe_id = self.rec.id)
+        db.session.add(fav)
+        db.session.commit()
+
+        self.assertEqual(self.u.favorites[0], self.rec)

@@ -71,6 +71,11 @@ class User(db.Model):
         secondaryjoin = (Friends.friend_id == id)
         )
 
+    favorites = db.relationship(
+        'Recipe',
+        secondary='favorites'
+    )
+
     def accept_friend(self, friend_id):
 
         friend = User.query.get(friend_id)
@@ -285,3 +290,25 @@ class Recipe(db.Model):
         nullable=False,
     )
 
+    ingredients = db.relationship(
+        'Ingredient',
+        secondary= 'recipe_ingredient',
+        backref= 'recipes'
+    )
+
+class RecipeIngredient(db.Model):
+    """Relationship between recipes and ingredients"""
+
+    __tablename__ = 'recipe_ingredient'
+
+    recipe_id = db.Column(
+        db.Integer,
+        db.ForeignKey('recipes.id', ondelete='CASCADE'),
+        nullable = False,
+    )
+
+    ingredient_id = db.Column(
+        db.Integer,
+        db.ForeignKey('ingredients.id', ondelete='CASCADE'),
+        nullable = False,
+    )

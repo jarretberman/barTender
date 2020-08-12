@@ -14,23 +14,41 @@ def connect_db(app):
     db.init_app(app)
 
 # build database schema
-class Friends (db.Model):
-    """Friends list model"""
+# class Friends (db.Model):
+#     """Friends list model"""
 
-    __tablename__ = 'friends'
+#     __tablename__ = 'friends'
 
-    user_id = db.Column(
+#     user_id = db.Column(
+#         db.Integer,
+#         db.ForeignKey('users.id', ondelete='CASCADE'),
+#         nullable=False,
+#         primary_key = True,
+#     )
+
+#     friend_id = db.Column(
+#         db.Integer,
+#         db.ForeignKey('users.id', ondelete='CASCADE'),
+#         nullable=False,
+#         primary_key = True,
+#     )
+
+#Following in place of friends for ease
+class Follows(db.Model):
+    """Connection of a follower <-> followed_user."""
+
+    __tablename__ = 'follows'
+
+    user_being_followed_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-        primary_key = True,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
     )
 
-    friend_id = db.Column(
+    user_following_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-        primary_key = True,
+        db.ForeignKey('users.id', ondelete="cascade"),
+        primary_key=True,
     )
 
 # Users
@@ -64,23 +82,52 @@ class User(db.Model):
         nullable=False,
     )
     
-    friends = db.relationship(
-        'User', 
-        secondary='friends',
-        primaryjoin=(Friends.user_id == id),
-        secondaryjoin = (Friends.friend_id == id)
-        )
+    # friends = db.relationship(
+    #     'User', 
+    #     secondary='friends',
+    #     primaryjoin=(Friends.user_id == id),
+    #     secondaryjoin = (Friends.friend_id == id)
+    #     )
 
     favorites = db.relationship(
         'Recipe',
         secondary='favorites'
     )
 
-    def accept_friend(self, friend_id):
+    followers = db.relationship(
+        "User",
+        secondary="follows",
+        primaryjoin=(Follows.user_being_followed_id == id),
+        secondaryjoin=(Follows.user_following_id == id)
+    )
 
-        friend = User.query.get(friend_id)
-        self.friends.append(friend)
-        db.session.commit()
+    following = db.relationship(
+        "User",
+        secondary="follows",
+        primaryjoin=(Follows.user_following_id == id),
+        secondaryjoin=(Follows.user_being_followed_id == id)
+    )
+
+    def is_followed_by(self, other_user):
+        """Is this user followed by `other_user`?"""
+
+        found_user_list = [user for user in self.followers if user == other_user]
+        return len(found_user_list) == 1
+
+    def is_following(self, other_user):
+        """Is this user following `other_user`?"""
+
+        found_user_list = [user for user in self.following if user == other_user]
+        return len(found_user_list) == 1
+
+
+    # def accept_friend(self, friend_id):
+
+    #     friend = User.query.get(friend_id)
+    #     self.friends.append(friend)
+    #     db.session.commit()
+
+    
 
     @classmethod
     def signup(cls, username, email, password):
@@ -95,7 +142,6 @@ class User(db.Model):
             username=username,
             email=email,
             password=hashed_pwd,
-            #image_url=image_url,
         )
 
         db.session.add(user)
@@ -137,7 +183,7 @@ class Cabinet(db.Model):
 
     user = db.relationship('User')
 
-    ### MAKE INGREDIENTS RELATIONSHIP
+    
     ingredients = db.relationship(
         'Ingredient',
         secondary='cabinet_ingredients',
@@ -305,10 +351,12 @@ class RecipeIngredient(db.Model):
         db.Integer,
         db.ForeignKey('recipes.id', ondelete='CASCADE'),
         nullable = False,
+        primary_key=True
     )
 
     ingredient_id = db.Column(
         db.Integer,
         db.ForeignKey('ingredients.id', ondelete='CASCADE'),
         nullable = False,
+        primary_key=True
     )

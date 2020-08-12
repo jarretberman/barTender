@@ -1,0 +1,40 @@
+{%extends 'base.html'%}
+
+{%block content%}
+
+<h1>THIS IS THE LANDING PAGE</h1><br>
+
+
+<div class="row border">
+    <div class="col-6">
+        <h3>Sign Up</h3>
+    <form method="POST" action ='/signup' id="user_form">
+        {{ signup_form.hidden_tag() }}
+  
+        {% for field in signup_form if field.widget.input_type != 'hidden' %}
+          {% for error in field.errors %}
+            <span class="text-danger">{{ error }}</span>
+          {% endfor %}
+          {{ field(placeholder=field.label.text, class="form-control") }}
+        {% endfor %}
+  
+        <button class="btn btn-primary btn-lg btn-block">Sign me up!</button>
+      </form>
+    </div>
+    <div class="col-6">
+        <h3>Log In</h3>
+      <form method="POST" action ='/login' id="user_form">
+        {{ login_form.hidden_tag() }}
+  
+        {% for field in login_form if field.widget.input_type != 'hidden' %}
+          {% for error in field.errors %}
+            <span class="text-danger">{{ error }}</span>
+          {% endfor %}
+          {{ field(placeholder=field.label.text, class="form-control") }}
+        {% endfor %}
+  
+        <button class="btn btn-primary btn-lg btn-block">Log In</button>
+      </form>
+    </div>
+</div>
+{%endblock%}

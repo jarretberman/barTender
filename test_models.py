@@ -8,13 +8,13 @@
 import os
 from unittest import TestCase
 
-from models import db, User, Ingredient, CabinetIngredient, Cabinet, Recipe, Friends, Favorites, Comment, Post
+from models import db, User, Ingredient, CabinetIngredient, Cabinet, Recipe, Follows, Favorites, Comment, Post
 
 os.environ['DATABASE_URL'] = "postgresql:///bartender_test"
 
 from app import app
 
-db.drop_all()
+# db.drop_all()
 db.create_all()
 
 
@@ -27,7 +27,7 @@ class UserModelTestCase(TestCase):
         User.query.delete()
         Cabinet.query.delete()
         Recipe.query.delete()
-        Friends.query.delete()
+        Follows.query.delete()
         Favorites.query.delete()
         Comment.query.delete()
         Post.query.delete()
@@ -53,7 +53,7 @@ class UserModelTestCase(TestCase):
         db.session.commit()
 
         # User should have no messages & no posts
-        self.assertEqual(len(u.friends), 0)
+        self.assertEqual(len(u.followers), 0)
         self.assertEqual(len(u.posts), 0)
 
     def test_signup_user(self):
@@ -69,7 +69,7 @@ class UserModelTestCase(TestCase):
         db.session.commit()
 
         #User should have no messages & no posts
-        self.assertEqual(len(u.friends), 0)
+        self.assertEqual(len(u.followers), 0)
         self.assertEqual(len(u.posts), 0)
         #User password should be encrypted and not stored as entered password
         self.assertNotEqual('testtest', u.password)
@@ -92,39 +92,89 @@ class UserModelTestCase(TestCase):
         #Returns false if it can't authenticate
         self.assertFalse(User.authenticate(username='testuser',password='wrongpassword'))
 
-    def test_friends (self) : 
-        """Adding a friend should show up in the User model"""
+    def test_is_following(self):
+        """Does is_following method work"""
 
         u = User.signup(
             username='testuser',
             email='test@test.com',
             password= 'testtest',
-            
         )
-
         u2 = User.signup(
             username='testuser2',
             email='test2@test.com',
             password= 'testtest',
-            
         )
-
-        db.session.add(u)
-        db.session.add(u2)
+        db.session.add_all([u,u2])
         db.session.commit()
 
-        u.friends.append(u2)
+        #Should return false when the users are not following eachother
+        self.assertFalse(u.is_following(u2))
 
-        db.session.commit
-        friend = Friends.query.first()
+        u.following.append(u2)
+        db.session.commit()
 
-        self.assertEqual(u2, u.friends[0])
-        self.assertEqual(u2.id, friend.friend_id)
+        #Should return true when a user is following another
+        self.assertTrue(u.is_following(u2))
 
-        u2.accept_friend(u.id)
-        friend2 = Friends.query.filter(Friends.user_id == u2.id)
+    def test_is_followed_by(self):
 
-        self.assertEqual(u2.friends[0], u)
+        u = User.signup(
+            username='testuser',
+            email='test@test.com',
+            password= 'testtest',
+        )
+        u2 = User.signup(
+            username='testuser2',
+            email='test2@test.com',
+            password= 'testtest',
+        )
+
+        db.session.add_all([u,u2])
+        db.session.commit()
+
+        #Should return false when the users are not following eachother
+        self.assertFalse(u.is_followed_by(u2))
+
+        u.following.append(u2)
+        db.session.commit()
+
+        #Should return true when a user is following another
+        self.assertTrue(u2.is_followed_by(u))
+
+    # def test_friends (self) : 
+    #     """Adding a friend should show up in the User model"""
+
+    #     u = User.signup(
+    #         username='testuser',
+    #         email='test@test.com',
+    #         password= 'testtest',
+            
+    #     )
+
+    #     u2 = User.signup(
+    #         username='testuser2',
+    #         email='test2@test.com',
+    #         password= 'testtest',
+            
+    #     )
+
+    #     db.session.add(u)
+    #     db.session.add(u2)
+    #     db.session.commit()
+
+    #     u.friends.append(u2)
+
+    #     db.session.commit
+    #     friend = Friends.query.first()
+
+    #     self.assertEqual(u2, u.friends[0])
+    #     self.assertEqual(u2.id, friend.friend_id)
+
+    #     u2.accept_friend(u.id)
+    #     friend2 = Friends.query.filter(Friends.user_id == u2.id)
+
+    #     self.assertEqual(u2.friends[0], u)
         
 class PostModelTestCase (TestCase):
     """Tests the Post model"""
@@ -135,7 +185,7 @@ class PostModelTestCase (TestCase):
         User.query.delete()
         Cabinet.query.delete()
         Recipe.query.delete()
-        Friends.query.delete()
+        Follows.query.delete()
         Favorites.query.delete()
         Comment.query.delete()
         Post.query.delete()
@@ -174,7 +224,7 @@ class CommentModelTestCase (TestCase):
         User.query.delete()
         Cabinet.query.delete()
         Recipe.query.delete()
-        Friends.query.delete()
+        Follows.query.delete()
         Favorites.query.delete()
         Comment.query.delete()
         Post.query.delete()
@@ -222,7 +272,7 @@ class CabinetModelTestCase (TestCase):
         User.query.delete()
         Cabinet.query.delete()
         Recipe.query.delete()
-        Friends.query.delete()
+        Follows.query.delete()
         Favorites.query.delete()
         Comment.query.delete()
         Post.query.delete()
@@ -258,7 +308,7 @@ class IngredientModelTestCase (TestCase):
         User.query.delete()
         Cabinet.query.delete()
         Recipe.query.delete()
-        Friends.query.delete()
+        Follows.query.delete()
         Favorites.query.delete()
         Comment.query.delete()
         Post.query.delete()
@@ -308,7 +358,7 @@ class RecipeModelTestCase (TestCase):
         User.query.delete()
         Cabinet.query.delete()
         Recipe.query.delete()
-        Friends.query.delete()
+        Follows.query.delete()
         Favorites.query.delete()
         Comment.query.delete()
         Post.query.delete()
@@ -335,7 +385,7 @@ class FavoritesModelTestCase (TestCase):
         User.query.delete()
         Cabinet.query.delete()
         Recipe.query.delete()
-        Friends.query.delete()
+        Follows.query.delete()
         Favorites.query.delete()
         Comment.query.delete()
         Post.query.delete()

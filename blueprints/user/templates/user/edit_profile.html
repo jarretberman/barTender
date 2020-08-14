@@ -4,5 +4,23 @@
 
     <h1>Edit Profile :{{g.user.username}}</h1>
     {{user}}
-    
+    <div class="row">
+        <h3>cabinet</h3>
+        {%if g.user.cabinet%}
+        {%with cabinet = g.user.cabinet[0]%}
+        <p>{{cabinet}}</p>
+        <div class="btn btn-primary">Add Ingredient</div>
+        <ul>
+            {%if cabinet.ingredients%}
+                {%for ingredient in cabinet.ingredients%}
+                <li>{{ingredient.name}}</li>
+                {%endfor%}
+            {%endif%}
+        </ul>
+        {%endwith%}
+        {%else%}
+            <p>start cabinet</p>
+        {%endif%}
+        
+    </div>
 {%endblock%}

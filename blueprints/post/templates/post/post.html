@@ -1,0 +1,21 @@
+{%extends 'post/base.html'%}
+
+{%block content%}
+<h3>{{post}}</h3>
+<h5>{{post.user}}</h5>
+<p>{{post.content}}</p>
+
+<hr>
+{%if post.comments%}
+
+    {%for comment in post.comments%}
+        <p>{{comment}}<br>{{comment.content}}<br><small>{{comment.user.username}}</small></p>
+    {%endfor%}
+{%endif%}
+
+<br>
+<form action="/user/comment/{{post.id}}">
+<input type="submit" class = 'btn btn-primary'value="Add Comment">
+</form>
+
+{%endblock%}

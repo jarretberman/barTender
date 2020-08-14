@@ -1,3 +1,7 @@
 /venv
 __pycache__
 /.vscode
+/blueprints/user/__pycache__
+/blueprints/cdb/__pycache__
+/blueprints/cabinet/__pycache__
+/blueprints/post/__pycache__

@@ -11,6 +11,7 @@ from forms import UserAddForm, LoginForm
 from blueprints.user.user import user
 from blueprints.cabinet.cabinet import cabinet
 from blueprints.cdb.cdb import cdb
+from blueprints.post.post import post
 
 CURR_USER_KEY = "curr_user"
 
@@ -18,6 +19,7 @@ app = Flask(__name__)
 app.register_blueprint(user, url_prefix="/user")
 app.register_blueprint(cabinet, url_prefix="/cabinet")
 app.register_blueprint(cdb, url_prefix = "/api/cdb")
+app.register_blueprint(post, url_prefix = "/post")
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
@@ -127,6 +129,9 @@ def sign_up_user():
                 email=form.email.data,
             )
             db.session.commit()
+            cabinet = Cabinet(user_id=user.id)
+            db.session.add(cabinet)
+            db.session.commit()
 
         except IntegrityError:
             flash("Username already taken", 'danger')
@@ -135,3 +140,6 @@ def sign_up_user():
         do_login(user)
 
         return redirect("/user/")
+    
+    flash('did not work')
+    return redirect('/')

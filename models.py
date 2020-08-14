@@ -181,7 +181,7 @@ class Cabinet(db.Model):
         nullable=False,
     )
 
-    user = db.relationship('User')
+    user = db.relationship('User', backref ='cabinet')
 
     
     ingredients = db.relationship(

@@ -1,9 +1,5 @@
 """Model tests."""
 
-# run these tests like:
-#
-#    python -m unittest test_user_model.py
-
 
 import os
 from unittest import TestCase
@@ -347,6 +343,7 @@ class IngredientModelTestCase (TestCase):
         db.session.commit()
 
         self.assertEqual(ing.cabinets[0], self.cab)
+        self.assertEqual(self.cab.ingredients[0], ing)
 
 
 class RecipeModelTestCase (TestCase):

@@ -2,6 +2,64 @@
 
 {%block content%}
 
-<h1>HOME PAGE</h1>
+<h1>{{g.user}}</h1>
+<div class="row">
+    <div class="col-3">
+        <div class="row">
+            <div class="col">
+                <h2>Following</h2>
+                {%if g.user.following%}
+                {%for user in g.user.following%}
+                <p><a href="{{url_for('user.show_profile', username = user.username)}}">{{user.username}}</a></p>
+                {%endfor%}
+                {%endif%}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h3>Followers</h3>
+                {%if g.user.followers%}
+                {%for user in g.user.followers%}
+                <p><a href="{{url_for('user.show_profile', username = user.username)}}">{{user.username}}</a></p>
+                {%endfor%}
+                {%endif%}
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        {%if bartalk%}
+        <h3>barTalk</h3>
+        <br>
+        <h5><a href="{{url_for('user.create_post')}}">Add New Post</a></h5>
+        <br>
+        {%for post in bartalk%}
+        <a href="{{url_for('post.show_post', post_id = post.id)}}">
+            <p>{{post}}<br>{{post.content}}</p>
+        </a>
+        <br>
+        <a href="{{url_for('user.show_profile', username = post.user.username)}}">
+            <small>by: {{post.user.username}}</small>
+        </a>
+        <br>
+        <small><a href="/user/comment/{{post.id}}">add comment</a></small>
+        <hr>
+        {%endfor%}
+        {%endif%}
 
+    </div>
+    <div class="col-3">
+        <h1>cabinet</h1>
+        {%with cabinet = g.user.cabinet[0] %}
+        {%if cabinet.ingredients%}
+
+        <ul>
+            {%for ingredient in cabinet.ingredients%}
+            <li>{{ingredient.name}}</li>
+            {%endfor%}
+        </ul>
+
+        {%endif%}
+        {%endwith%}
+    </div>
+</div>
 {%endblock%}
